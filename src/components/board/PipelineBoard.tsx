@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 
 import type { Applicant } from '../../types/applicant'
 import { STAGE_DEFINITIONS } from '../../constants/stages'
+import { useMoveApplicantStage } from '../../hooks/useMoveApplicantStage'
 import { ApplicantCard } from '../applicant/ApplicantCard'
 import { PipelineColumn } from './PipelineColumn'
 import styles from './PipelineBoard.module.css'
@@ -11,6 +12,7 @@ interface PipelineBoardProps {
 }
 
 export function PipelineBoard({ applicants }: PipelineBoardProps) {
+  const moveApplicant = useMoveApplicantStage()
   const applicantsByStage = useMemo(
     () =>
       new Map(
@@ -30,7 +32,14 @@ export function PipelineBoard({ applicants }: PipelineBoardProps) {
         return (
           <PipelineColumn key={stage.id} stage={stage} count={stageApplicants.length}>
             {stageApplicants.map((applicant) => (
-              <ApplicantCard key={applicant.id} applicant={applicant} />
+              <ApplicantCard
+                key={applicant.id}
+                applicant={applicant}
+                disabled={moveApplicant.isPending}
+                onStageChange={(applicantId, targetStage) =>
+                  moveApplicant.mutate({ applicantId, stage: targetStage })
+                }
+              />
             ))}
           </PipelineColumn>
         )

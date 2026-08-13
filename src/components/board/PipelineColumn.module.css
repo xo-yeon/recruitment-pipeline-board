@@ -39,10 +39,39 @@
 }
 
 .header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
   margin: 0;
   color: #0a0b0d;
   font-size: 1rem;
   line-height: 1.5;
+}
+
+.stageIcon {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  place-items: center;
+  border-radius: 9999px;
+  background: #eef0f3;
+  color: #5b616e;
+}
+
+.stageIcon[data-stage='hired'] {
+  background: #0052ff;
+  color: #ffffff;
+}
+
+.stageIcon[data-stage='rejected'] {
+  background: #dee1e6;
+  color: #5b616e;
+}
+
+.stageIcon svg {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .header p {

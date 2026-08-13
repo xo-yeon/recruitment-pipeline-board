@@ -1,12 +1,16 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import { getApplicants } from './api/applicants'
+import { getApplicants, updateApplicantStage } from './api/applicants'
 import { QueryProvider } from './app/QueryProvider'
 import { App } from './App'
 import type { Applicant } from './types/applicant'
 
-vi.mock('./api/applicants', () => ({ getApplicants: vi.fn() }))
+vi.mock('./api/applicants', () => ({
+  getApplicants: vi.fn(),
+  updateApplicantStage: vi.fn(),
+}))
 
 const applicants: Applicant[] = [
   {
@@ -48,5 +52,23 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: '김서준' })).toBeInTheDocument()
     expect(screen.getByText('프론트엔드 개발자')).toBeInTheDocument()
     expect(screen.getByText('전체 지원자 2명')).toBeInTheDocument()
+  })
+
+  it('requests a stage change from an applicant action', async () => {
+    const user = userEvent.setup()
+    vi.mocked(getApplicants).mockResolvedValue(applicants)
+    vi.mocked(updateApplicantStage).mockResolvedValue({ ...applicants[0], stage: 'interview' })
+
+    render(
+      <QueryProvider>
+        <App />
+      </QueryProvider>,
+    )
+
+    await user.click(await screen.findByRole('button', { name: '면접으로 이동' }))
+
+    await waitFor(() => {
+      expect(updateApplicantStage).toHaveBeenCalledWith('applicant-001', 'interview')
+    })
   })
 })
