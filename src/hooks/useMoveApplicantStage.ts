@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { updateApplicantStage } from '../api/applicants'
@@ -11,8 +12,9 @@ export interface MoveApplicantVariables {
 
 export function useMoveApplicantStage() {
   const queryClient = useQueryClient()
+  const pendingApplicantIds = useRef(new Set<string>())
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: ({ applicantId, stage }: MoveApplicantVariables) =>
       updateApplicantStage(applicantId, stage),
     onMutate: async ({ applicantId, stage }) => {
@@ -33,6 +35,19 @@ export function useMoveApplicantStage() {
         queryClient.setQueryData(applicantQueryKey, context.previousApplicants)
       }
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: applicantQueryKey }),
+    onSettled: (_data, _error, variables) => {
+      pendingApplicantIds.current.delete(variables.applicantId)
+      return queryClient.invalidateQueries({ queryKey: applicantQueryKey })
+    },
   })
+
+  return {
+    ...mutation,
+    mutate: (variables: MoveApplicantVariables) => {
+      if (pendingApplicantIds.current.has(variables.applicantId)) return
+
+      pendingApplicantIds.current.add(variables.applicantId)
+      mutation.mutate(variables)
+    },
+  }
 }

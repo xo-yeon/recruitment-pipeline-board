@@ -117,4 +117,52 @@ describe('useMoveApplicantStage', () => {
     await waitFor(() => expect(result.current.isError).toBe(true))
     expect(queryClient.getQueryData(applicantQueryKey)).toStrictEqual(applicants)
   })
+
+  it('ignores another move for the same applicant while its request is pending', async () => {
+    const queryClient = createQueryClient()
+    let resolveUpdate!: (applicant: Applicant) => void
+    vi.mocked(updateApplicantStage).mockReturnValue(
+      new Promise<Applicant>((resolve) => {
+        resolveUpdate = resolve
+      }),
+    )
+    queryClient.setQueryData(applicantQueryKey, applicants)
+    const { result } = renderHook(() => useMoveApplicantStage(), {
+      wrapper: createWrapper(queryClient),
+    })
+
+    act(() => {
+      result.current.mutate({ applicantId: 'applicant-001', stage: 'interview' })
+      result.current.mutate({ applicantId: 'applicant-001', stage: 'negotiation' })
+    })
+
+    await waitFor(() => expect(updateApplicantStage).toHaveBeenCalledTimes(1))
+    expect(updateApplicantStage).toHaveBeenCalledWith('applicant-001', 'interview')
+    expect(queryClient.getQueryData<Applicant[]>(applicantQueryKey)?.[0].stage).toBe('interview')
+
+    act(() => {
+      resolveUpdate({ ...applicants[0], stage: 'interview' })
+    })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+  })
+
+  it('allows another applicant to move while a request is pending', async () => {
+    const queryClient = createQueryClient()
+    vi.mocked(updateApplicantStage).mockReturnValue(new Promise<Applicant>(() => undefined))
+    queryClient.setQueryData(applicantQueryKey, applicants)
+    const { result } = renderHook(() => useMoveApplicantStage(), {
+      wrapper: createWrapper(queryClient),
+    })
+
+    act(() => {
+      result.current.mutate({ applicantId: 'applicant-001', stage: 'interview' })
+      result.current.mutate({ applicantId: 'applicant-002', stage: 'negotiation' })
+    })
+
+    await waitFor(() => expect(updateApplicantStage).toHaveBeenCalledTimes(2))
+    expect(queryClient.getQueryData<Applicant[]>(applicantQueryKey)?.map(({ stage }) => stage)).toEqual([
+      'interview',
+      'negotiation',
+    ])
+  })
 })
