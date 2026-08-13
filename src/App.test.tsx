@@ -49,9 +49,34 @@ describe('App', () => {
 
     expect(screen.getByRole('heading', { name: '채용 파이프라인' })).toBeInTheDocument()
     expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(5)
-    expect(await screen.findByRole('heading', { name: '김서준' })).toBeInTheDocument()
-    expect(screen.getByText('프론트엔드 개발자')).toBeInTheDocument()
+    const applicantHeading = await screen.findByRole('heading', { name: '김서준' })
+    const applicantCard = applicantHeading.closest('article')
+
+    expect(applicantHeading).toBeInTheDocument()
+    expect(within(applicantCard!).getByText('프론트엔드 개발자')).toBeInTheDocument()
     expect(screen.getByText('전체 지원자 2명')).toBeInTheDocument()
+  })
+
+  it('filters applicants by name and position', async () => {
+    const user = userEvent.setup()
+    vi.mocked(getApplicants).mockResolvedValue(applicants)
+
+    render(
+      <QueryProvider>
+        <App />
+      </QueryProvider>,
+    )
+
+    await screen.findByRole('heading', { name: '김서준' })
+    await user.type(screen.getByRole('searchbox', { name: '지원자 이름 검색' }), '김서준')
+
+    expect(screen.getByRole('heading', { name: '김서준' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '이서연' })).not.toBeInTheDocument()
+    expect(screen.getByText('검색 결과 1명')).toBeInTheDocument()
+
+    await user.selectOptions(screen.getByRole('combobox', { name: '직무' }), '백엔드 개발자')
+    expect(screen.queryByRole('heading', { name: '김서준' })).not.toBeInTheDocument()
+    expect(screen.getByText('검색 결과 0명')).toBeInTheDocument()
   })
 
   it('moves an applicant immediately before the API responds', async () => {
