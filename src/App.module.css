@@ -1,25 +1,63 @@
-.shell {
-  width: min(100% - 2rem, 80rem);
+.page {
+  width: min(100% - 3rem, 112rem);
   margin: 0 auto;
-  padding: 4rem 0;
+  padding: 3rem 0 6rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .eyebrow {
   margin: 0 0 0.75rem;
-  color: #475569;
+  color: #0052ff;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.shell h1 {
+.header h1 {
   margin: 0;
-  color: #0f172a;
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: #0a0b0d;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.04em;
 }
 
 .description {
   margin: 1rem 0 0;
-  color: #64748b;
+  color: #5b616e;
+}
+
+.status {
+  flex: none;
+  padding: 0.625rem 0.875rem;
+  border: 0;
+  border-radius: 9999px;
+  background: #eef0f3;
+  color: #0a0b0d;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.main {
+  min-width: 0;
+}
+
+@media (max-width: 40rem) {
+  .page {
+    width: min(100% - 1.5rem, 112rem);
+    padding: 1.5rem 0;
+  }
+
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1rem;
+  }
 }

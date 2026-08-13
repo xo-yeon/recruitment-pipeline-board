@@ -1,0 +1,15 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(17rem, 1fr));
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.25rem 1rem;
+  scroll-snap-type: x proximity;
+  scrollbar-color: #dee1e6 transparent;
+}
+
+@media (min-width: 90rem) {
+  .board {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

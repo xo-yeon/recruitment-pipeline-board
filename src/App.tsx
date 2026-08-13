@@ -1,11 +1,20 @@
+import { PipelineBoard } from './components/board/PipelineBoard'
 import styles from './App.module.css'
 
 export function App() {
   return (
-    <main className={styles.shell}>
-      <p className={styles.eyebrow}>Recruitment workspace</p>
-      <h1>채용 파이프라인 보드</h1>
-      <p className={styles.description}>프로젝트 환경 구성이 완료되었습니다.</p>
-    </main>
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>Recruitment workspace</p>
+          <h1>채용 파이프라인</h1>
+          <p className={styles.description}>지원자의 채용 진행 상황을 한눈에 관리하세요.</p>
+        </div>
+        <span className={styles.status}>전체 지원자 0명</span>
+      </header>
+      <main className={styles.main}>
+        <PipelineBoard />
+      </main>
+    </div>
   )
 }
