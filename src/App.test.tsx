@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -212,8 +212,10 @@ describe('App', () => {
     expect(within(interviewColumn).getByRole('heading', { name: '김서준' })).toBeInTheDocument()
     expect(updateApplicantStage).toHaveBeenCalledWith('applicant-001', 'interview')
 
-    resolveUpdate({ ...applicants[0], stage: 'interview' })
-    await updateRequest
+    await act(async () => {
+      resolveUpdate({ ...applicants[0], stage: 'interview' })
+      await updateRequest
+    })
   })
 
   it('restores the applicant and displays feedback when the API fails', async () => {

@@ -165,4 +165,38 @@ describe('useMoveApplicantStage', () => {
       'negotiation',
     ])
   })
+
+  it('undoes the most recent successful move and persists the previous stage', async () => {
+    const queryClient = createQueryClient()
+    vi.mocked(updateApplicantStage)
+      .mockResolvedValueOnce({ ...applicants[0], stage: 'interview' })
+      .mockResolvedValueOnce({ ...applicants[0], stage: 'document' })
+    queryClient.setQueryData(applicantQueryKey, applicants)
+    const { result } = renderHook(() => useMoveApplicantStage(), {
+      wrapper: createWrapper(queryClient),
+    })
+
+    act(() => {
+      result.current.mutate({ applicantId: 'applicant-001', stage: 'interview' })
+    })
+
+    await waitFor(() => {
+      expect(result.current.lastMove).toMatchObject({
+        applicantId: 'applicant-001',
+        previousStage: 'document',
+        nextStage: 'interview',
+      })
+    })
+
+    act(() => {
+      result.current.undoLastMove()
+    })
+
+    await waitFor(() => expect(updateApplicantStage).toHaveBeenCalledTimes(2))
+    expect(updateApplicantStage).toHaveBeenLastCalledWith('applicant-001', 'document')
+    await waitFor(() => {
+      expect(queryClient.getQueryData<Applicant[]>(applicantQueryKey)?.[0].stage).toBe('document')
+      expect(result.current.lastMove).toBeNull()
+    })
+  })
 })
