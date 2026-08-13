@@ -34,6 +34,21 @@ export function App() {
   }, [applicants, searchTerm, selectedPosition])
   const selectedApplicant = applicants.find(({ id }) => id === selectedApplicantId)
 
+  function handleRetryApplicants() {
+    const url = new URL(window.location.href)
+
+    if (url.searchParams.get('mock') === 'error') {
+      url.searchParams.delete('mock')
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${url.pathname}${url.search}${url.hash}`,
+      )
+    }
+
+    void refetch()
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -59,7 +74,7 @@ export function App() {
             title="지원자를 불러오지 못했습니다"
             description={error instanceof Error ? error.message : '잠시 후 다시 시도해주세요.'}
             actionLabel="다시 시도"
-            onAction={() => void refetch()}
+            onAction={handleRetryApplicants}
           />
         ) : applicants.length === 0 ? (
           <BoardState

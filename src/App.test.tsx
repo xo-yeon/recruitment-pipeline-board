@@ -52,6 +52,7 @@ describe('App', () => {
 
   it('renders an error state and retries the request', async () => {
     const user = userEvent.setup()
+    window.history.replaceState({}, '', '/?mock=error')
     vi.mocked(getApplicants).mockRejectedValue(new Error('지원자 목록 조회에 실패했습니다.'))
 
     render(
@@ -66,6 +67,7 @@ describe('App', () => {
     vi.mocked(getApplicants).mockResolvedValue(applicants)
     await user.click(within(errorState).getByRole('button', { name: '다시 시도' }))
 
+    expect(window.location.search).toBe('')
     expect(await screen.findByRole('heading', { name: '김서준' })).toBeInTheDocument()
   })
 
