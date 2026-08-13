@@ -9,9 +9,10 @@ import styles from './PipelineBoard.module.css'
 
 interface PipelineBoardProps {
   applicants: Applicant[]
+  onApplicantSelect: (applicantId: string) => void
 }
 
-export function PipelineBoard({ applicants }: PipelineBoardProps) {
+export function PipelineBoard({ applicants, onApplicantSelect }: PipelineBoardProps) {
   const moveApplicant = useMoveApplicantStage()
   const applicantsByStage = useMemo(
     () =>
@@ -43,6 +44,7 @@ export function PipelineBoard({ applicants }: PipelineBoardProps) {
                 <ApplicantCard
                   key={applicant.id}
                   applicant={applicant}
+                  onSelect={onApplicantSelect}
                   onStageChange={(applicantId, targetStage) =>
                     moveApplicant.mutate({ applicantId, stage: targetStage })
                   }

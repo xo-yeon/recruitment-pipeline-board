@@ -79,6 +79,29 @@ describe('App', () => {
     expect(screen.getByText('검색 결과 0명')).toBeInTheDocument()
   })
 
+  it('opens and closes an applicant detail panel', async () => {
+    const user = userEvent.setup()
+    vi.mocked(getApplicants).mockResolvedValue(applicants)
+
+    render(
+      <QueryProvider>
+        <App />
+      </QueryProvider>,
+    )
+
+    await user.click(await screen.findByRole('button', { name: '김서준 상세 보기' }))
+
+    const panel = screen.getByRole('dialog', { name: '김서준' })
+    expect(document.body).toHaveStyle({ overflow: 'hidden' })
+    expect(within(panel).getByText('applicant1@example.com')).toBeInTheDocument()
+    expect(within(panel).getByText('010-1000-2000')).toBeInTheDocument()
+    expect(within(panel).getByText('3년')).toBeInTheDocument()
+
+    await user.click(within(panel).getByRole('button', { name: '닫기' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(document.body).not.toHaveStyle({ overflow: 'hidden' })
+  })
+
   it('moves an applicant immediately before the API responds', async () => {
     const user = userEvent.setup()
     let resolveUpdate!: (applicant: Applicant) => void

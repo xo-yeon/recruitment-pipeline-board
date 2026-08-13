@@ -1,11 +1,30 @@
 .card {
+  position: relative;
   padding: 1.25rem;
   border: 1px solid #dee1e6;
   border-radius: 0.5rem;
   background: #ffffff;
 }
 
+.detailTrigger {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.detailTrigger:focus-visible {
+  outline: 2px solid #0052ff;
+  outline-offset: 2px;
+}
+
 .header {
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -40,6 +59,9 @@
 }
 
 .position {
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
   margin: 0.5rem 0 1rem;
   color: #5b616e;
   font-size: 0.875rem;
@@ -47,7 +69,10 @@
 }
 
 .details {
+  position: relative;
+  z-index: 0;
   margin: 0;
+  pointer-events: none;
 }
 
 .details div {
@@ -74,6 +99,8 @@
 }
 
 .actions {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;

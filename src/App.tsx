@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import { ApplicantDetailPanel } from './components/applicant/ApplicantDetailPanel'
 import { PipelineBoard } from './components/board/PipelineBoard'
 import { ApplicantFilters } from './components/filters/ApplicantFilters'
 import { useApplicants } from './hooks/useApplicants'
@@ -9,6 +10,7 @@ export function App() {
   const { data: applicants = [] } = useApplicants()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedPosition, setSelectedPosition] = useState('')
+  const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(null)
   const positions = useMemo(
     () => [...new Set(applicants.map(({ position }) => position))].sort(),
     [applicants],
@@ -23,6 +25,7 @@ export function App() {
         (!selectedPosition || position === selectedPosition),
     )
   }, [applicants, searchTerm, selectedPosition])
+  const selectedApplicant = applicants.find(({ id }) => id === selectedApplicantId)
 
   return (
     <div className={styles.page}>
@@ -43,8 +46,17 @@ export function App() {
           onSearchTermChange={setSearchTerm}
           onPositionChange={setSelectedPosition}
         />
-        <PipelineBoard applicants={filteredApplicants} />
+        <PipelineBoard
+          applicants={filteredApplicants}
+          onApplicantSelect={setSelectedApplicantId}
+        />
       </main>
+      {selectedApplicant && (
+        <ApplicantDetailPanel
+          applicant={selectedApplicant}
+          onClose={() => setSelectedApplicantId(null)}
+        />
+      )}
     </div>
   )
 }
