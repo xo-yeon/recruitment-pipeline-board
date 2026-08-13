@@ -1,0 +1,66 @@
+.card {
+  padding: 1.25rem;
+  border: 1px solid #dee1e6;
+  border-radius: 0.5rem;
+  background: #ffffff;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.header h3 {
+  margin: 0;
+  color: #0a0b0d;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.stage {
+  flex: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  background: #eef0f3;
+  color: #5b616e;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.position {
+  margin: 0.5rem 0 1rem;
+  color: #5b616e;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.details {
+  margin: 0;
+}
+
+.details div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.details dt,
+.details dd {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.details dt {
+  color: #7c828a;
+}
+
+.details dd {
+  color: #0a0b0d;
+  font-variant-numeric: tabular-nums;
+}

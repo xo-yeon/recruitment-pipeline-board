@@ -8,6 +8,27 @@
   scroll-snap-align: start;
 }
 
+.column[data-stage='document'] {
+  background: #ffffff;
+}
+
+.column[data-stage='interview'] {
+  background: #fafafa;
+}
+
+.column[data-stage='negotiation'] {
+  background: #f7f7f7;
+}
+
+.column[data-stage='hired'] {
+  border-color: #c7d7ff;
+  background: #eef3ff;
+}
+
+.column[data-stage='rejected'] {
+  background: #eef0f3;
+}
+
 .header {
   display: flex;
   align-items: flex-start;
@@ -45,6 +66,9 @@
 }
 
 .content {
+  display: grid;
   flex: 1;
+  align-content: start;
+  gap: 0.75rem;
   padding: 1.5rem;
 }

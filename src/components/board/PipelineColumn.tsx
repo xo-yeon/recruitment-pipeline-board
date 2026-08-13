@@ -12,7 +12,7 @@ export function PipelineColumn({ stage, count = 0, children }: PipelineColumnPro
   const headingId = `stage-${stage.id}`
 
   return (
-    <section className={styles.column} aria-labelledby={headingId}>
+    <section className={styles.column} data-stage={stage.id} aria-labelledby={headingId}>
       <header className={styles.header}>
         <div>
           <h2 id={headingId}>{stage.label}</h2>
