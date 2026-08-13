@@ -38,6 +38,49 @@ const applicants: Applicant[] = [
 ]
 
 describe('App', () => {
+  it('renders a loading state while applicants are requested', () => {
+    vi.mocked(getApplicants).mockReturnValue(new Promise<Applicant[]>(() => undefined))
+
+    render(
+      <QueryProvider>
+        <App />
+      </QueryProvider>,
+    )
+
+    expect(screen.getByRole('status')).toHaveTextContent('지원자를 불러오고 있습니다')
+  })
+
+  it('renders an error state and retries the request', async () => {
+    const user = userEvent.setup()
+    vi.mocked(getApplicants).mockRejectedValue(new Error('지원자 목록 조회에 실패했습니다.'))
+
+    render(
+      <QueryProvider>
+        <App />
+      </QueryProvider>,
+    )
+
+    const errorState = await screen.findByRole('alert', undefined, { timeout: 2500 })
+    expect(errorState).toHaveTextContent('지원자 목록 조회에 실패했습니다.')
+
+    vi.mocked(getApplicants).mockResolvedValue(applicants)
+    await user.click(within(errorState).getByRole('button', { name: '다시 시도' }))
+
+    expect(await screen.findByRole('heading', { name: '김서준' })).toBeInTheDocument()
+  })
+
+  it('renders an empty state when there are no applicants', async () => {
+    vi.mocked(getApplicants).mockResolvedValue([])
+
+    render(
+      <QueryProvider>
+        <App />
+      </QueryProvider>,
+    )
+
+    expect(await screen.findByText('등록된 지원자가 없습니다')).toBeInTheDocument()
+  })
+
   it('renders applicants in recruitment stage columns', async () => {
     vi.mocked(getApplicants).mockResolvedValue(applicants)
 
@@ -48,10 +91,10 @@ describe('App', () => {
     )
 
     expect(screen.getByRole('heading', { name: '채용 파이프라인' })).toBeInTheDocument()
-    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(5)
     const applicantHeading = await screen.findByRole('heading', { name: '김서준' })
     const applicantCard = applicantHeading.closest('article')
 
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(5)
     expect(applicantHeading).toBeInTheDocument()
     expect(within(applicantCard!).getByText('프론트엔드 개발자')).toBeInTheDocument()
     expect(screen.getByText('전체 지원자 2명')).toBeInTheDocument()
@@ -77,6 +120,7 @@ describe('App', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: '직무' }), '백엔드 개발자')
     expect(screen.queryByRole('heading', { name: '김서준' })).not.toBeInTheDocument()
     expect(screen.getByText('검색 결과 0명')).toBeInTheDocument()
+    expect(screen.getByText('검색 결과가 없습니다')).toBeInTheDocument()
   })
 
   it('opens and closes an applicant detail panel', async () => {

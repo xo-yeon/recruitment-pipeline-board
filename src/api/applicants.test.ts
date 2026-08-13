@@ -1,10 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  getApplicants,
-  MockApiError,
-  updateApplicantStage,
-} from './applicants'
+import { getApplicants, MockApiError, updateApplicantStage } from './applicants'
 
 async function finishRequest<T>(request: Promise<T>) {
   await vi.advanceTimersByTimeAsync(800)
@@ -14,6 +10,7 @@ async function finishRequest<T>(request: Promise<T>) {
 describe('applicants mock API', () => {
   beforeEach(() => {
     localStorage.clear()
+    window.history.replaceState({}, '', '/')
     vi.useFakeTimers()
   })
 
@@ -32,6 +29,15 @@ describe('applicants mock API', () => {
       position: '프론트엔드 개발자',
       stage: 'document',
     })
+  })
+
+  it('forces a fetch error in development for manual verification', async () => {
+    window.history.replaceState({}, '', '/?mock=error')
+
+    const request = getApplicants()
+    const expectation = expect(request).rejects.toThrow('지원자 목록 조회에 실패했습니다.')
+    await vi.advanceTimersByTimeAsync(800)
+    await expectation
   })
 
   it('persists a successful stage update', async () => {

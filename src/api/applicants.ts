@@ -108,6 +108,14 @@ function waitForNetwork() {
 
 export async function getApplicants(): Promise<Applicant[]> {
   await waitForNetwork()
+
+  if (
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).get('mock') === 'error'
+  ) {
+    throw new Error('지원자 목록 조회에 실패했습니다. 잠시 후 다시 시도해주세요.')
+  }
+
   return readApplicants()
 }
 
