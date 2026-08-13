@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { STAGE_DEFINITIONS } from '../../constants/stages'
 import type { Applicant } from '../../types/applicant'
@@ -19,14 +19,47 @@ const dateFormatter = new Intl.DateTimeFormat('ko-KR', {
 export function ApplicantDetailPanel({ applicant, onClose }: ApplicantDetailPanelProps) {
   const titleId = `applicant-detail-${applicant.id}`
   const stageLabel = STAGE_DEFINITIONS.find(({ id }) => id === applicant.stage)?.label
+  const panelRef = useRef<HTMLElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
+    const previouslyFocusedElement =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null
+
+    closeButtonRef.current?.focus()
+
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onClose()
+        return
+      }
+
+      if (event.key !== 'Tab') return
+
+      const focusableElements = panelRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )
+
+      if (!focusableElements?.length) return
+
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault()
+        lastElement.focus()
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault()
+        firstElement.focus()
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      previouslyFocusedElement?.focus()
+    }
   }, [onClose])
 
   useEffect(() => {
@@ -40,14 +73,32 @@ export function ApplicantDetailPanel({ applicant, onClose }: ApplicantDetailPane
 
   return (
     <div className={styles.layer}>
-      <button className={styles.backdrop} type="button" aria-label="상세 패널 닫기" onClick={onClose} />
-      <aside className={styles.panel} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <button
+        className={styles.backdrop}
+        type="button"
+        aria-label="상세 패널 닫기"
+        tabIndex={-1}
+        onClick={onClose}
+      />
+      <aside
+        ref={panelRef}
+        className={styles.panel}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
         <header className={styles.header}>
           <div>
             <p className={styles.eyebrow}>Applicant detail</p>
             <h2 id={titleId}>{applicant.name}</h2>
           </div>
-          <button className={styles.close} type="button" aria-label="닫기" onClick={onClose}>
+          <button
+            ref={closeButtonRef}
+            className={styles.close}
+            type="button"
+            aria-label="닫기"
+            onClick={onClose}
+          >
             <svg aria-hidden="true" viewBox="0 0 24 24">
               <path d="m6 6 12 12M18 6 6 18" />
             </svg>

@@ -148,6 +148,49 @@ describe('App', () => {
     expect(document.body).not.toHaveStyle({ overflow: 'hidden' })
   })
 
+  it('supports detail viewing and stage movement with the keyboard', async () => {
+    const user = userEvent.setup()
+    vi.mocked(getApplicants).mockResolvedValue(applicants)
+    vi.mocked(updateApplicantStage).mockReturnValue(new Promise<Applicant>(() => undefined))
+
+    render(
+      <QueryProvider>
+        <App />
+      </QueryProvider>,
+    )
+
+    const detailButton = await screen.findByRole('button', { name: '김서준 상세 보기' })
+
+    await user.tab()
+    await user.tab()
+    await user.tab()
+    expect(detailButton).toHaveFocus()
+
+    await user.keyboard('{Enter}')
+    const panel = screen.getByRole('dialog', { name: '김서준' })
+    const closeButton = within(panel).getByRole('button', { name: '닫기' })
+    expect(closeButton).toHaveFocus()
+
+    await user.tab()
+    expect(closeButton).toHaveFocus()
+
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(detailButton).toHaveFocus()
+
+    await user.tab()
+    const moveButton = screen.getByRole('button', { name: '면접으로 이동' })
+    expect(moveButton).toHaveFocus()
+
+    await user.keyboard('{Enter}')
+    expect(updateApplicantStage).toHaveBeenCalledWith('applicant-001', 'interview')
+    expect(
+      within(screen.getByRole('region', { name: '면접' })).getByRole('heading', {
+        name: '김서준',
+      }),
+    ).toBeInTheDocument()
+  })
+
   it('moves an applicant immediately before the API responds', async () => {
     const user = userEvent.setup()
     let resolveUpdate!: (applicant: Applicant) => void
