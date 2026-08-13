@@ -25,7 +25,7 @@ export class ApplicantNotFoundError extends Error {
 
 export class MockApiError extends Error {
   constructor() {
-    super('단계 변경에 실패했습니다. 잠시 후 다시 시도해주세요.')
+    super('단계 변경에 실패해 이전 상태로 복구했습니다. 잠시 후 다시 시도해주세요.')
     this.name = 'MockApiError'
   }
 }

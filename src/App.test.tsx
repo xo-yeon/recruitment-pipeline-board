@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -54,10 +54,14 @@ describe('App', () => {
     expect(screen.getByText('전체 지원자 2명')).toBeInTheDocument()
   })
 
-  it('requests a stage change from an applicant action', async () => {
+  it('moves an applicant immediately before the API responds', async () => {
     const user = userEvent.setup()
+    let resolveUpdate!: (applicant: Applicant) => void
+    const updateRequest = new Promise<Applicant>((resolve) => {
+      resolveUpdate = resolve
+    })
     vi.mocked(getApplicants).mockResolvedValue(applicants)
-    vi.mocked(updateApplicantStage).mockResolvedValue({ ...applicants[0], stage: 'interview' })
+    vi.mocked(updateApplicantStage).mockReturnValue(updateRequest)
 
     render(
       <QueryProvider>
@@ -67,8 +71,45 @@ describe('App', () => {
 
     await user.click(await screen.findByRole('button', { name: '면접으로 이동' }))
 
+    const interviewColumn = screen.getByRole('region', { name: '면접' })
+    expect(within(interviewColumn).getByRole('heading', { name: '김서준' })).toBeInTheDocument()
+    expect(updateApplicantStage).toHaveBeenCalledWith('applicant-001', 'interview')
+
+    resolveUpdate({ ...applicants[0], stage: 'interview' })
+    await updateRequest
+  })
+
+  it('restores the applicant and displays feedback when the API fails', async () => {
+    const user = userEvent.setup()
+    let rejectUpdate!: (error: Error) => void
+    const updateRequest = new Promise<Applicant>((_resolve, reject) => {
+      rejectUpdate = reject
+    })
+    vi.mocked(getApplicants).mockResolvedValue(applicants)
+    vi.mocked(updateApplicantStage).mockReturnValue(updateRequest)
+
+    render(
+      <QueryProvider>
+        <App />
+      </QueryProvider>,
+    )
+
+    await user.click(await screen.findByRole('button', { name: '면접으로 이동' }))
+    expect(
+      within(screen.getByRole('region', { name: '면접' })).getByRole('heading', {
+        name: '김서준',
+      }),
+    ).toBeInTheDocument()
+
+    rejectUpdate(new Error('단계 변경에 실패했습니다. 다시 시도해주세요.'))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('단계 변경에 실패했습니다.')
     await waitFor(() => {
-      expect(updateApplicantStage).toHaveBeenCalledWith('applicant-001', 'interview')
+      expect(
+        within(screen.getByRole('region', { name: '서류 검토' })).getByRole('heading', {
+          name: '김서준',
+        }),
+      ).toBeInTheDocument()
     })
   })
 })

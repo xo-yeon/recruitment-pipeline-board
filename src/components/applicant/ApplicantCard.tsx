@@ -6,7 +6,6 @@ import styles from './ApplicantCard.module.css'
 
 interface ApplicantCardProps {
   applicant: Applicant
-  disabled?: boolean
   onStageChange: (applicantId: string, stage: ApplicantStage) => void
 }
 
@@ -16,7 +15,7 @@ const dateFormatter = new Intl.DateTimeFormat('ko-KR', {
   day: 'numeric',
 })
 
-export function ApplicantCard({ applicant, disabled = false, onStageChange }: ApplicantCardProps) {
+export function ApplicantCard({ applicant, onStageChange }: ApplicantCardProps) {
   const stageLabel = STAGE_DEFINITIONS.find(({ id }) => id === applicant.stage)?.label
   const appliedAt = dateFormatter.format(new Date(`${applicant.appliedAt}T00:00:00`))
 
@@ -43,7 +42,6 @@ export function ApplicantCard({ applicant, disabled = false, onStageChange }: Ap
               key={action.targetStage}
               className={action.variant === 'danger' ? styles.dangerAction : styles.action}
               type="button"
-              disabled={disabled}
               onClick={() => onStageChange(applicant.id, action.targetStage)}
             >
               <span className={styles.actionIcon}>
