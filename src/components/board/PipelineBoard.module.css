@@ -51,8 +51,9 @@
 
 .board {
   display: grid;
-  grid-template-columns: repeat(5, minmax(17rem, 1fr));
+  grid-template-columns: repeat(5, 22rem);
   gap: 1.5rem;
+  max-width: 100%;
   overflow-x: auto;
   padding: 0.25rem 0.25rem 1rem;
   scroll-snap-type: x proximity;
@@ -61,6 +62,6 @@
 
 @media (min-width: 90rem) {
   .board {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(20rem, 1fr));
   }
 }

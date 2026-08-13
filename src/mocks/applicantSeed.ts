@@ -37,7 +37,7 @@ function formatDate(daysAgo: number) {
     .slice(0, 10)
 }
 
-export function createApplicantSeed(count = 250): Applicant[] {
+export function createApplicantSeed(count = 1000): Applicant[] {
   return Array.from({ length: count }, (_, index) => {
     const sequence = index + 1
 

@@ -1,0 +1,31 @@
+.viewport {
+  position: relative;
+  height: min(44rem, calc(100vh - 19rem));
+  min-height: 28rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.spacer {
+  position: relative;
+  min-height: 100%;
+}
+
+.item {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 14rem;
+}
+
+.item > article {
+  height: 100%;
+}
+
+@media (max-height: 45rem) {
+  .viewport {
+    height: 28rem;
+  }
+}

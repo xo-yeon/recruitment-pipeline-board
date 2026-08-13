@@ -5,8 +5,8 @@ import {
   type ApplicantStage,
 } from '../types/applicant'
 
-const STORAGE_KEY = 'recruitment-pipeline-board:applicants:v1'
-const STORAGE_VERSION = 1
+const STORAGE_KEY = 'recruitment-pipeline-board:applicants:v2'
+const STORAGE_VERSION = 2
 const MIN_DELAY_MS = 200
 const MAX_DELAY_MS = 800
 const UPDATE_FAILURE_RATE = 0.15

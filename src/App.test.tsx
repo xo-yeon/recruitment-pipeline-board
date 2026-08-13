@@ -1,10 +1,11 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
 import { getApplicants, updateApplicantStage } from './api/applicants'
 import { QueryProvider } from './app/QueryProvider'
 import { App } from './App'
+import { createApplicantSeed } from './mocks/applicantSeed'
 import type { Applicant } from './types/applicant'
 
 vi.mock('./api/applicants', () => ({
@@ -123,6 +124,33 @@ describe('App', () => {
     expect(screen.queryByRole('heading', { name: '김서준' })).not.toBeInTheDocument()
     expect(screen.getByText('검색 결과 0명')).toBeInTheDocument()
     expect(screen.getByText('검색 결과가 없습니다')).toBeInTheDocument()
+  })
+
+  it('virtualizes and filters 1000 applicants', async () => {
+    const user = userEvent.setup()
+    vi.mocked(getApplicants).mockResolvedValue(createApplicantSeed(1000))
+
+    render(
+      <QueryProvider>
+        <App />
+      </QueryProvider>,
+    )
+
+    expect(await screen.findByText('전체 지원자 1000명')).toBeInTheDocument()
+    expect(screen.getAllByRole('article').length).toBeLessThan(1000)
+
+    const documentList = screen.getByRole('list', { name: '서류 검토 지원자 목록' })
+    fireEvent.scroll(documentList, { target: { scrollTop: 4720 } })
+    await waitFor(() => {
+      expect(within(documentList).getAllByRole('listitem')[0]).toHaveAttribute(
+        'aria-posinset',
+        '19',
+      )
+    })
+
+    await user.type(screen.getByRole('searchbox', { name: '지원자 이름 검색' }), '김서준')
+    expect(screen.getByText('검색 결과 10명')).toBeInTheDocument()
+    expect(screen.getAllByRole('article').length).toBeLessThanOrEqual(10)
   })
 
   it('opens and closes an applicant detail panel', async () => {

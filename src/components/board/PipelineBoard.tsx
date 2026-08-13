@@ -3,8 +3,8 @@ import { useMemo } from 'react'
 import type { Applicant } from '../../types/applicant'
 import { STAGE_DEFINITIONS } from '../../constants/stages'
 import { useMoveApplicantStage } from '../../hooks/useMoveApplicantStage'
-import { ApplicantCard } from '../applicant/ApplicantCard'
 import { PipelineColumn } from './PipelineColumn'
+import { VirtualizedApplicantList } from './VirtualizedApplicantList'
 import styles from './PipelineBoard.module.css'
 
 interface PipelineBoardProps {
@@ -57,16 +57,14 @@ export function PipelineBoard({ applicants, onApplicantSelect }: PipelineBoardPr
 
           return (
             <PipelineColumn key={stage.id} stage={stage} count={stageApplicants.length}>
-              {stageApplicants.map((applicant) => (
-                <ApplicantCard
-                  key={applicant.id}
-                  applicant={applicant}
-                  onSelect={onApplicantSelect}
-                  onStageChange={(applicantId, targetStage) =>
-                    moveApplicant.mutate({ applicantId, stage: targetStage })
-                  }
-                />
-              ))}
+              <VirtualizedApplicantList
+                applicants={stageApplicants}
+                stageLabel={stage.label}
+                onApplicantSelect={onApplicantSelect}
+                onStageChange={(applicantId, targetStage) =>
+                  moveApplicant.mutate({ applicantId, stage: targetStage })
+                }
+              />
             </PipelineColumn>
           )
         })}

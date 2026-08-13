@@ -19,10 +19,10 @@ describe('applicants mock API', () => {
     vi.useRealTimers()
   })
 
-  it('returns 250 deterministic applicants', async () => {
+  it('returns 1000 deterministic applicants', async () => {
     const applicants = await finishRequest(getApplicants())
 
-    expect(applicants).toHaveLength(250)
+    expect(applicants).toHaveLength(1000)
     expect(applicants[0]).toMatchObject({
       id: 'applicant-001',
       name: '김서준',
